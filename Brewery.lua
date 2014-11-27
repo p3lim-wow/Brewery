@@ -39,45 +39,41 @@ local function FadeOut(frame)
 	end)
 end
 
+local function CreateBar(maxValue, callback)
+	local Bar = CreateFrame('StatusBar', nil, UIParent)
+	Bar:SetSize(160, 9)
+	Bar:Hide()
+	Bar:SetMinMaxValues(0, maxValue)
+	Bar:SetBackdrop(BACKDROP)
+	Bar:SetBackdropColor(0, 0, 0)
+	Bar:RegisterUnitEvent('UNIT_AURA', 'player')
+	Bar:SetScript('OnEvent', callback)
+
+	local Background = Bar:CreateTexture(nil, 'BORDER')
+	Background:SetAllPoints()
+	Background:SetTexture(1/8, 1/8, 1/8)
+
+	local Text = Bar:CreateFontString()
+	Text:SetPoint('CENTER', 0, 1)
+	Text:SetFont(FONT, 8, 'OUTLINEMONOCHROME')
+	Text:SetJustifyH('CENTER')
+	Bar.Text = Text
+
+	return Bar
+end
+
 local ResolveSpell = GetSpellInfo(158300)
-local ResolveBar = CreateFrame('StatusBar', nil, UIParent)
-ResolveBar:SetPoint('CENTER', 0, -220)
-ResolveBar:SetSize(160, 9)
-ResolveBar:Hide()
-ResolveBar:SetStatusBarTexture(0.6, 0.3, 0)
-ResolveBar:SetMinMaxValues(0, 240)
-ResolveBar:SetBackdrop(BACKDROP)
-ResolveBar:SetBackdropColor(0, 0, 0)
-ResolveBar:RegisterUnitEvent('UNIT_AURA', 'player')
-ResolveBar:SetScript('OnEvent', function(self, event, unit)
+local ResolveBar = CreateBar(240, function(self, event, unit)
 	local _, _, _, _, _, _, _, _, _, _, _, _, _, _, perc = UnitAura('player', ResolveSpell, nil, 'HELPFUL')
 	self:SetValue(perc or 0)
 	self.Text:SetFormattedText('%d%%', perc or 0)
 end)
-
-local ResolveBackground = ResolveBar:CreateTexture(nil, 'BORDER')
-ResolveBackground:SetAllPoints()
-ResolveBackground:SetTexture(1/8, 1/8, 1/8)
-
-local ResolveText = ResolveBar:CreateFontString()
-ResolveText:SetPoint('CENTER', 0, 1)
-ResolveText:SetFont(FONT, 8, 'OUTLINEMONOCHROME')
-ResolveText:SetJustifyH('CENTER')
-ResolveBar.Text = ResolveText
+ResolveBar:SetPoint('CENTER', 0, -220)
+ResolveBar:SetStatusBarTexture(0.6, 0.3, 0)
 
 local StaggerBar
 if(select(2, UnitClass('player')) == 'MONK') then
-	local StaggerBar = CreateFrame('StatusBar', nil, UIParent)
-	StaggerBar:SetPoint('BOTTOM', ResolveBar, 'TOP', 0, 5)
-	StaggerBar:SetSize(160, 9)
-	StaggerBar:Hide()
-	StaggerBar:SetStatusBarTexture(0.1, 0.6, 0.4)
-	StaggerBar:SetMinMaxValues(0, 100)
-	StaggerBar:SetBackdrop(BACKDROP)
-	StaggerBar:SetBackdropColor(0, 0, 0)
-	StaggerBar:RegisterUnitEvent('UNIT_AURA', 'player')
-	StaggerBar:RegisterUnitEvent('UNIT_DISPLAYPOWER', 'player')
-	StaggerBar:SetScript('OnEvent', function(self, event, unit)
+	StaggerBar = CreateBar(100, function(self, event, unit)
 		local perc = floor(UnitStagger('player') / UnitHealthMax('player') * 100)
 		self:SetValue(perc)
 		self.Text:SetFormattedText('%d%%', perc)
@@ -86,16 +82,9 @@ if(select(2, UnitClass('player')) == 'MONK') then
 			FadeOut(self)
 		end
 	end)
-
-	local StaggerBackground = StaggerBar:CreateTexture(nil, 'BORDER')
-	StaggerBackground:SetAllPoints()
-	StaggerBackground:SetTexture(1/8, 1/8, 1/8)
-
-	local StaggerText = StaggerBar:CreateFontString()
-	StaggerText:SetPoint('CENTER', 0, 1)
-	StaggerText:SetFont(FONT, 8, 'OUTLINEMONOCHROME')
-	StaggerText:SetJustifyH('CENTER')
-	StaggerBar.Text = StaggerText
+	StaggerBar:SetPoint('BOTTOM', ResolveBar, 'TOP', 0, 5)
+	StaggerBar:SetStatusBarTexture(0.1, 0.6, 0.4)
+	StaggerBar:RegisterUnitEvent('UNIT_DISPLAYPOWER', 'player')
 end
 
 local Handler = CreateFrame('Frame')
