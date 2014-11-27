@@ -1,0 +1,7 @@
+## Interface: 60000
+## Author: p3lim
+## Version: Alpha
+## Title: Brewery
+## Notes: Resolve and Stagger tracking
+
+Brewery.lua
