@@ -95,7 +95,8 @@ Handler:RegisterUnitEvent('UNIT_ENTERED_VEHICLE', 'player')
 Handler:RegisterUnitEvent('UNIT_EXITED_VEHICLE', 'player')
 Handler:SetScript('OnEvent', function(self, event, ...)
 	if(event == 'PLAYER_TALENT_UPDATE') then
-		isTank = GetSpecializationRole(GetSpecialization()) == 'TANK'
+		local specIndex = GetSpecialization()
+		isTank = specIndex and GetSpecializationRole(specIndex) == 'TANK'
 	end
 
 	if(not isTank or UnitHasVehicleUI('player')) then
